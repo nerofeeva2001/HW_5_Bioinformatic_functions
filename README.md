@@ -1,5 +1,6 @@
 # **HW_5_Bioinformatic_functions**
 ## *run_protein_tool*
+is a Python module that allows you to perform various procedures on proteins
 ### The following functions are implemented:
         
         molecular_weight This function takes 1-letter coded protein sequence(s) (string) and calculates molecular weight rounded to integer in g/mol. The function is not case-sensitive. 
@@ -12,6 +13,7 @@
 
 
 ## *run_dna_rna_tools* 
+is a Python module that allows you to perform various procedures on DNA or RNA sequences
 ### The following functions are implemented:
         transcribe - Function for transcribing DNA into RNA (replaces all T's with U's)
         
@@ -22,6 +24,7 @@
         reverse_complement - Function for finding the reverse complementary sequence (finds the complementary sequence and reverses it)
 
 ## *filter_reads*
+is a Python module that allows you to perform various procedures on fastq-files
 ### The following functions are implemented:
 
         gc_content(read) - Function for calculating GC composition of the reed
