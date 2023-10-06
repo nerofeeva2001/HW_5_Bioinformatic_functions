@@ -1,1 +1,56 @@
+# Импортируем модули из стандартной библиотеки
+import sys
+import argparse
 
+# Импортируем модули из папки scripts
+from scripts.protein_tools import amino_acid_frequency, find_motifs, check_protein_seq, olecular_weight, one_to_three_letter
+from scripts.fastq_tools import gc_content, mean_quality, gc_bounds_filter, length_bounds_filter, quality_threshold_filter
+from scripts.dna_tools import transcribe, reverse, complement, reverse_complement, run_dna_rna_tools
+
+def run_protein_tool(*args: str, function: str,  motif: Optional[str]=None):
+    results = []
+    for seq in args:
+        check_protein_seq(seq)
+        if function == 'check_protein_seq':
+            results.append(check_protein_seq(seq))
+        elif function == 'molecular_weight':
+            results.append(molecular_weight(seq))
+        elif function == 'one_to_three_letter':
+            results.append(one_to_three_letter(seq))
+        elif function == 'amino_acid_frequency':
+            results.append(amino_acid_frequency(seq))
+        elif function == 'find_motifs':
+            results.append(find_motifs(seq, motif))
+    if len(results) == 1:
+        results = results[0]
+    return results
+
+def filter_reads(seqs, gc_bounds=(0, 100), length_bounds=(0, 2**32), quality_threshold=0):
+    # применяем все три функции фильтрации последовательно к словарю seqs
+    seqs = gc_bounds_filter(seqs, gc_bounds)
+    seqs = length_bounds_filter(seqs, length_bounds)
+    seqs = quality_threshold_filter(seqs, quality_threshold)
+    return seqs # возвращаем итоговый словарь отфильтрованных ридов
+
+def run_dna_rna_tools(*args):
+    # Проверяем, что есть хотя бы один аргумент
+    if len(args) == 0:
+        return "Ошибка: не переданы аргументы"
+    procedure = args[-1]
+    if procedure not in ['transcribe', 'reverse', 'complement', 'reverse_complement']:
+        return f"Ошибка: неизвестная процедура {procedure}"
+    results = []
+    for arg in args[:-1]:
+        # Проверяем, что аргумент является строкой
+        if not isinstance(arg, str):
+            return f"Ошибка: аргумент {arg} не является строкой"
+        if not all(s in "ATGCatgcuU" for s in arg):
+            return f"Ошибка: аргумент {arg} содержит недопустимые символы"
+        if ('T' in arg or 't' in arg) and ('U' in arg or 'u' in arg):
+            return f"Ошибка: аргумент {arg} содержит одновременно T и U"
+        result = eval(procedure + '(arg)')
+        results.append(result)
+    if len(results) == 1:
+        return results[0]
+    else:
+        return results
