@@ -38,10 +38,10 @@ is a Python module that allows you to perform various procedures on fastq-files
         quality_threshold_filter - Function for filtering reids by average quality
 
 
-Bioinformatics Python Tools
+# **HW_6_ioinformatics Python Tools** 
 This repository contains a set of Python functions for various bioinformatics tasks. These functions are designed to work with sequence data in formats such as FASTA, GenBank, and BLAST output. Here is an overview of the functions available in this toolset:
 
-Functions
+## Functions
 1. convert_multiline_fasta_to_oneline(input_fasta, output_fasta=None)
 This function takes a multiline FASTA file as input and converts it to a one-line FASTA file. If the output_fasta parameter is not provided, it will generate an output file with the same name as the input file but with the ".fasta" extension.
 
