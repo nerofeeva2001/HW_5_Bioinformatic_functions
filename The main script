@@ -3,9 +3,9 @@ import sys
 import argparse
 
 # Импортируем модули из папки scripts
-from scripts.protein_tools import amino_acid_frequency, find_motifs, check_protein_seq, olecular_weight, one_to_three_letter
-from scripts.fastq_tools import gc_content, mean_quality, gc_bounds_filter, length_bounds_filter, quality_threshold_filter
-from scripts.dna_tools import transcribe, reverse, complement, reverse_complement, run_dna_rna_tools
+from scripts import dna_tools.py
+from scripts import fastq_tools.py
+from scripts import protein_tools.py
 
 def run_protein_tool(*args: str, function: str,  motif: Optional[str]=None):
     results = []
