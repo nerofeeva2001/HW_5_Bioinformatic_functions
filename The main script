@@ -5,7 +5,8 @@ import argparse
 # Импортируем модули из папки scripts
 from scripts import dna_tools.py
 from scripts import fastq_tools.py
-from scripts import protein_tools.py
+from scripts import protein_tools_update.py
+from scripts import bio_files_processor.py
 
 def run_protein_tool(*args: str, function: str,  motif: Optional[str]=None):
     results = []
@@ -54,3 +55,66 @@ def run_dna_rna_tools(*args):
         return results[0]
     else:
         return results
+
+def convert_multiline_fasta_to_oneline(input_fasta, output_fasta=None):
+    if output_fasta is None:
+        output_fasta = f"{os.path.splitext(input_fasta)[0]}.fasta"
+    
+    with open(input_fasta, "r") as infile, open(output_fasta, "w") as outfile:
+        records = list(SeqIO.parse(infile, "fasta"))
+        for record in records:
+            sequence = str(record.seq)
+            outfile.write(f">{record.id}\n{sequence}\n")
+
+def select_genes_from_gbk_to_fasta(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
+    if output_fasta is None:
+        output_fasta = f"{os.path.splitext(input_gbk)[0]}.fasta"
+    
+    gene_pattern = re.compile(f'({genes})')
+    records = list(SeqIO.parse(input_gbk, "genbank"))
+    
+    with open(output_fasta, "w") as outfile:
+        for record in records:
+            genes_found = []
+            for feature in record.features:
+                if feature.type == "CDS" and gene_pattern.search(str(feature.qualifiers.get('gene', [''])[0])):
+                    genes_found.append(feature)
+            for gene_feature in genes_found:
+                index = record.features.index(gene_feature)
+                start = max(0, index - n_before)
+                end = min(len(record.features), index + n_after + 1)
+                for nearby_feature in record.features[start:end]:
+                    if nearby_feature.type == "CDS":
+                        sequence = nearby_feature.qualifiers.get("translation", [""])[0]
+                        gene_name = nearby_feature.qualifiers.get("gene", ["unknown_gene"])[0]
+                        outfile.write(f">{gene_name}\n{sequence}\n")
+
+def change_fasta_start_pos(input_fasta, shift, output_fasta=None):
+    if output_fasta is None:
+        output_fasta = f"{os.path.splitext(input_fasta)[0]}_shifted.fasta"
+    
+    with open(input_fasta, "r") as infile, open(output_fasta, "w") as outfile:
+        for record in SeqIO.parse(infile, "fasta"):
+            sequence = str(record.seq)
+            shifted_sequence = sequence[shift:] + sequence[:shift]
+            outfile.write(f">{record.id}\n{shifted_sequence}\n")
+
+def parse_blast_output(input_file, output_file=None):
+    if output_file is None:
+        output_file = "parsed_blast_results.txt"
+
+    results = []
+
+    with open(input_file, "r") as infile:
+        lines = infile.read().split("Sequences producing significant alignments:")
+        for line in lines[1:]:
+            lines = line.split("\n")
+            query_line = lines[0].strip()
+            description = lines[1].strip().split("Description: ")[1]
+            results.append((query_line, description))
+
+    results.sort(key=lambda x: x[1])  # Sort by description
+
+    with open(output_file, "w") as outfile:
+        for query_line, description in results:
+            outfile.write(f"{query_line}\n{description}\n\n")
