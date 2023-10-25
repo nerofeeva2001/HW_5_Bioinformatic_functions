@@ -51,5 +51,4 @@ This repository contains a set of Python functions for various bioinformatics ta
 ## Usage
 Please refer to the specific module's documentation for detailed usage instructions.
 
-## License
-This project is licensed under the MIT License. See the LICENSE.md file for more details.
+
