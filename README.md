@@ -66,25 +66,6 @@ This repository contains a set of Python functions for various bioinformatics ta
 5. **Run the Script**:
    - Execute the main script to perform the tasks you need.
 
-Example:
-
-```python
-# Import modules from the scripts directory
-from scripts import dna_tools
-from scripts import fastq_tools
-from scripts import protein_tools_update
-from scripts import bio_files_processor
-
-def main():
-    # Call the functions from the imported modules
-    dna_tools.some_function()
-    fastq_tools.another_function()
-    protein_tools_update.yet_another_function()
-    bio_files_processor.one_more_function()
-
-if __name__ == "__main__":
-    main()```
-
 ## Troubleshooting
 
 If you encounter any issues while using this toolkit, consider the following troubleshooting steps:
