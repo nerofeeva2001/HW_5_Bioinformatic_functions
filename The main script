@@ -3,118 +3,15 @@ import sys
 import argparse
 
 # Импортируем модули из папки scripts
-from scripts import dna_tools.py
-from scripts import fastq_tools.py
-from scripts import protein_tools_update.py
-from scripts import bio_files_processor.py
+from scripts import dna_tools.py as dna_tools
+from scripts import fastq_tools.py as fastq_tools
+from scripts import protein_tools_update.py as protein_tools
+from scripts import bio_files_processor.py as bio_files_processor
 
-def run_protein_tool(*args: str, function: str,  motif: Optional[str]=None):
-    results = []
-    for seq in args:
-        check_protein_seq(seq)
-        if function == 'check_protein_seq':
-            results.append(check_protein_seq(seq))
-        elif function == 'molecular_weight':
-            results.append(molecular_weight(seq))
-        elif function == 'one_to_three_letter':
-            results.append(one_to_three_letter(seq))
-        elif function == 'amino_acid_frequency':
-            results.append(amino_acid_frequency(seq))
-        elif function == 'find_motifs':
-            results.append(find_motifs(seq, motif))
-    if len(results) == 1:
-        results = results[0]
-    return results
+def main():
+    # Вызов функций ДЗ 3, 4 и 5
+    dna_tools()
+    fastq_tools()
+    protein_tools()
+    bio_files_processor()
 
-def filter_reads(seqs, gc_bounds=(0, 100), length_bounds=(0, 2**32), quality_threshold=0):
-    # применяем все три функции фильтрации последовательно к словарю seqs
-    seqs = gc_bounds_filter(seqs, gc_bounds)
-    seqs = length_bounds_filter(seqs, length_bounds)
-    seqs = quality_threshold_filter(seqs, quality_threshold)
-    return seqs # возвращаем итоговый словарь отфильтрованных ридов
-
-def run_dna_rna_tools(*args):
-    # Проверяем, что есть хотя бы один аргумент
-    if len(args) == 0:
-        return "Ошибка: не переданы аргументы"
-    procedure = args[-1]
-    if procedure not in ['transcribe', 'reverse', 'complement', 'reverse_complement']:
-        return f"Ошибка: неизвестная процедура {procedure}"
-    results = []
-    for arg in args[:-1]:
-        # Проверяем, что аргумент является строкой
-        if not isinstance(arg, str):
-            return f"Ошибка: аргумент {arg} не является строкой"
-        if not all(s in "ATGCatgcuU" for s in arg):
-            return f"Ошибка: аргумент {arg} содержит недопустимые символы"
-        if ('T' in arg or 't' in arg) and ('U' in arg or 'u' in arg):
-            return f"Ошибка: аргумент {arg} содержит одновременно T и U"
-        result = eval(procedure + '(arg)')
-        results.append(result)
-    if len(results) == 1:
-        return results[0]
-    else:
-        return results
-
-def convert_multiline_fasta_to_oneline(input_fasta, output_fasta=None):
-    if output_fasta is None:
-        output_fasta = f"{os.path.splitext(input_fasta)[0]}.fasta"
-    
-    with open(input_fasta, "r") as infile, open(output_fasta, "w") as outfile:
-        records = list(SeqIO.parse(infile, "fasta"))
-        for record in records:
-            sequence = str(record.seq)
-            outfile.write(f">{record.id}\n{sequence}\n")
-
-def select_genes_from_gbk_to_fasta(input_gbk, genes, n_before=1, n_after=1, output_fasta=None):
-    if output_fasta is None:
-        output_fasta = f"{os.path.splitext(input_gbk)[0]}.fasta"
-    
-    gene_pattern = re.compile(f'({genes})')
-    records = list(SeqIO.parse(input_gbk, "genbank"))
-    
-    with open(output_fasta, "w") as outfile:
-        for record in records:
-            genes_found = []
-            for feature in record.features:
-                if feature.type == "CDS" and gene_pattern.search(str(feature.qualifiers.get('gene', [''])[0])):
-                    genes_found.append(feature)
-            for gene_feature in genes_found:
-                index = record.features.index(gene_feature)
-                start = max(0, index - n_before)
-                end = min(len(record.features), index + n_after + 1)
-                for nearby_feature in record.features[start:end]:
-                    if nearby_feature.type == "CDS":
-                        sequence = nearby_feature.qualifiers.get("translation", [""])[0]
-                        gene_name = nearby_feature.qualifiers.get("gene", ["unknown_gene"])[0]
-                        outfile.write(f">{gene_name}\n{sequence}\n")
-
-def change_fasta_start_pos(input_fasta, shift, output_fasta=None):
-    if output_fasta is None:
-        output_fasta = f"{os.path.splitext(input_fasta)[0]}_shifted.fasta"
-    
-    with open(input_fasta, "r") as infile, open(output_fasta, "w") as outfile:
-        for record in SeqIO.parse(infile, "fasta"):
-            sequence = str(record.seq)
-            shifted_sequence = sequence[shift:] + sequence[:shift]
-            outfile.write(f">{record.id}\n{shifted_sequence}\n")
-
-def parse_blast_output(input_file, output_file=None):
-    if output_file is None:
-        output_file = "parsed_blast_results.txt"
-
-    results = []
-
-    with open(input_file, "r") as infile:
-        lines = infile.read().split("Sequences producing significant alignments:")
-        for line in lines[1:]:
-            lines = line.split("\n")
-            query_line = lines[0].strip()
-            description = lines[1].strip().split("Description: ")[1]
-            results.append((query_line, description))
-
-    results.sort(key=lambda x: x[1])  # Sort by description
-
-    with open(output_file, "w") as outfile:
-        for query_line, description in results:
-            outfile.write(f"{query_line}\n{description}\n\n")
