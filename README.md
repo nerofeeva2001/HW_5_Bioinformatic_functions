@@ -48,6 +48,42 @@ This repository contains a set of Python functions for various bioinformatics ta
 4. **parse_blast_output(input_file, output_file=None)**
    - Parses BLAST output, extracts relevant information, and generates a more readable output.
 
+### How to Use the Main Script
+
+1. **Setup**: Ensure you have the necessary dependencies installed and the `scripts` directory contains the required module files.
+
+2. **Run the Main Script**:
+   - Execute the main script using Python.
+   - This can be done from the command line or integrated into your own Python programs.
+
+3. **Function Selection**:
+   - The main script imports functions from various modules located in the `scripts` directory, specifically `dna_tools.py`, `fastq_tools.py`, `protein_tools_update.py`, and `bio_files_processor.py`.
+
+4. **Function Execution**:
+   - Inside the `main()` function, you can call the functions from the imported modules to perform specific tasks.
+   - For example, `dna_tools()`, `fastq_tools()`, `protein_tools()`, and `bio_files_processor()` execute tasks related to DNA sequences, fastq file processing, protein sequences, and bio file processing, respectively.
+
+5. **Run the Script**:
+   - Execute the main script to perform the tasks you need.
+
+Example:
+
+```python
+# Import modules from the scripts directory
+from scripts import dna_tools
+from scripts import fastq_tools
+from scripts import protein_tools_update
+from scripts import bio_files_processor
+
+def main():
+    # Call the functions from the imported modules
+    dna_tools.some_function()
+    fastq_tools.another_function()
+    protein_tools_update.yet_another_function()
+    bio_files_processor.one_more_function()
+
+if __name__ == "__main__":
+    main()
 ## Usage
 Please refer to the specific module's documentation for detailed usage instructions.
 
